@@ -1,0 +1,197 @@
+﻿<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Tehtävät 21-25</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<table class="data">
+			<tr>
+				<th>ID</th>
+				<th>Nimi</th>
+				<th>Osoite</th>
+				<th>Koulutusohjelma</th>
+				<th>Aloitusvuosi</th>
+			</tr>
+			<tr>
+			
+			</tr>
+		</table>
+		<button id="hae">Hae kaikki</button></br>
+		
+		<input type="text" id ="haku" name="haku">
+		<button id="haeID">Hae ID</button>
+		<div id="tulos">
+			
+		</div>
+		
+		<form id="studentForm" action="tehtava21-25.html" method="post">
+			ID:<br>
+			<input type="text" name="id" id="id_input">
+			<br>
+			Nimi:<br>
+			<input type="text" name="nimi" id="nimi_input">
+			<br>
+			Osoite:<br>
+			<input type="text" name="osoite" id="osoite_input">
+			<br>
+			Koulutusohjelma:<br>
+			<input type="text" name="koulutusohjelma" id="koulutusohjelma_input">
+			<br>
+			Aloitusvuosi:<br>
+			<input type="text" name="aloitusvuosi" id="aloitusvuosi_input">
+			<br>
+			<button id="lisaa">Lisää</button>
+			<button id="muokkaa">Muokkaa</button>
+			<button id="poista">Poista</button>
+		</form>
+		
+		<script type="text/javascript">
+			$('#hae').click(function(){
+				alert('ajax');
+				$.ajax({
+					type: "get",
+					dataType: "json",
+					url: "http://localhost:51331/api/oppilas",
+					success: function(data){
+						console.log(data);
+						for (var i = 0; i < data.length; i++) {
+							tr = $('<tr/>');
+							tr.append("<td>" + data[i].id + "</td>");
+							tr.append("<td>" + data[i].nimi + "</td>");
+							tr.append("<td>" + data[i].osoite + "</td>");
+							tr.append("<td>" + data[i].koulutusohjelma + "</td>");
+							tr.append("<td>" + data[i].aloitusvuosi + "</td>");
+							$('.data').append(tr);
+						}
+						alert('success');
+					}
+				});
+			 });
+			 
+			$('#haeID').click(function() {
+				alert('ajax');
+				var id = $('#haku').val();
+				$.ajax({
+					headers: {
+						"Accept": "application/json",
+						"Content-Type": "application/json"
+					},
+					type: "get",
+					dataType: "json",
+					url: "http://localhost:51331/api/oppilas/" + id,
+					success: function(data) {
+						console.log(data);
+						$("#id_input").val(data.id);
+						$("#nimi_input").val(data.nimi);
+						$("#osoite_input").val(data.osoite);
+						$("#koulutusohjelma_input").val(data.koulutusohjelma);
+						$("#aloitusvuosi_input").val(data.aloitusvuosi);
+						alert('success');
+					}
+				});
+			});
+			
+			
+			$('#lisaa').click(function(e) {
+				e.preventDefault();
+				var id = $('#id_input').val();
+				var nimi = $('#nimi_input').val();
+				var osoite = $('#osoite_input').val();
+				var koulutusohjelma = $('#koulutusohjelma_input').val();
+				var aloitusvuosi = $('#aloitusvuosi_input').val();
+				
+				var JsonObj = {
+					"id": id,
+					"nimi" :nimi,
+					"osoite" :osoite,
+					"koulutusohjelma" :koulutusohjelma,
+					"aloitusvuosi" :aloitusvuosi
+				};
+				
+				var data = JSON.stringify(JsonObj);
+				
+				$.ajax({
+					headers: {
+						"Accept": "application/json",
+						"Content-Type": "application/json"
+					},
+					type: "post",
+					dataType: "json",
+					url: "http://localhost:51331/api/oppilas",
+					data: data,
+					beforeSend: function(xhr) {
+						alert('sending');
+					},
+					success: function(data) {
+						console.log(data);
+						alert('success');
+					}
+				});
+			});
+
+			$('#muokkaa').click(function(e) {
+				e.preventDefault();
+				var id = $('#haku').val();
+				var nimi = $('#nimi_input').val();
+				var osoite = $('#osoite_input').val();
+				var koulutusohjelma = $('#koulutusohjelma_input').val();
+				var aloitusvuosi = $('#aloitusvuosi_input').val();
+
+				var JsonObj = {
+					"id" :id,
+					"nimi" :nimi,
+					"osoite" :osoite,
+					"koulutusohjelma" :koulutusohjelma,
+					"aloitusvuosi" :aloitusvuosi
+				};
+
+				var data = JSON.stringify(JsonObj);
+
+				$.ajax({
+					headers: {
+						"Accept": "application/json",
+						"Content-Type": "application/json"
+					},
+					type: "put",
+					url: "http://localhost:51331/api/oppilas/" + id,
+					dataType: "json",
+					data: data,
+					success: function(data) {
+						console.log(data);
+						alert('Data muokattu');
+					},
+					error: function(data) {
+						console.log(data);
+						alert('Failure');
+					}
+				});
+			});
+
+			$('#poista').click(function(e) {
+				e.preventDefault();
+				var id = $('#haku').val();
+				$.ajax({
+					headers: {
+						"Accept": "application/json",
+						"Content-Type": "application/json"
+					},
+					type: "delete",
+					dataType: "json",
+					url: "http://localhost:51331/api/oppilas/" + id,
+					success: function(data) {
+						console.log(data);
+						alert('Data poistettu');
+					},
+					error: function(data) {
+						console.log(data);
+						alert('Failure');
+					}
+				});
+			});
+			
+			
+			
+		</script>
+	</body>
+</html>
